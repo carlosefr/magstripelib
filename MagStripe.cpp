@@ -27,10 +27,11 @@
 #include "MagStripe.h"
 
 
+// This is enough for now (BCD on track 2 only)...
 #define BIT_BUFFER_LEN 320
 
 
-// Interrupt handler variables...
+// Variables used by the interrupt handlers...
 static volatile uint8_t next_bit = 0;          // next bit to read
 static volatile uint8_t bits[BIT_BUFFER_LEN];  // buffer for bits being read
 static volatile size_t num_bits = 0;           // number of bits already read
@@ -63,19 +64,20 @@ void MagStripe::stop()
 
 size_t MagStripe::read(char *data, size_t size)
 {
-    // Currently only the BCD format is supported...
+    // Currently only the BCD format (track 2) is supported...
     if (this->format != MAGSTRIPE_FMT_BCD) {
         return -1;
     }
 
+    // Fail if no card present...
     if (!this->available()) {
         return -1;
     }
  
-    // Wait while the data is read by the interrupt routines...
+    // Wait while the data is being read by the interrupt routines...
     while (this->available()) {}
 
-    // TODO: support other formats besides BCD...
+    // TODO: support other formats besides BCD on track 2...
     size_t chars = this->decode_bits_bcd(data, size);
 
     // Reset the bit buffer...
@@ -87,7 +89,7 @@ size_t MagStripe::read(char *data, size_t size)
 
 size_t MagStripe::find_start_bcd()
 {
-    uint8_t bcd_accum = 0;
+    uint8_t bcd_accum = 0x00;
   
     for (size_t i = 0; i < num_bits; i++) {
         bcd_accum = (bcd_accum << 1) & 0x1f;  // rotate the 5 bits to the left...
@@ -99,7 +101,7 @@ size_t MagStripe::find_start_bcd()
         }
     }
 
-    // Error, no sentinel was found...
+    // Error, no start sentinel was found...
     return -1;
 }
 
@@ -107,10 +109,11 @@ size_t MagStripe::find_start_bcd()
 size_t MagStripe::decode_bits_bcd(char *data, size_t size) {
     short counter = 0;
     short chars = 0;
-    uint8_t bcd_accum = 0;
+    uint8_t bcd_accum = 0x00;
   
     size_t start = this->find_start_bcd();
-    if (start < 0) {  // error, start character not found
+    if (start < 0) {  // error, start sentinel not found
+        // TODO: reverse bit buffer for bidirectional reading (beware of LRC as fake sentinel)
         return -1;
     }
  
@@ -125,33 +128,34 @@ size_t MagStripe::decode_bits_bcd(char *data, size_t size) {
                 return -1;
             }
 
-            // A null means we reached the end of data...
+            // A null means we reached the end of the data...
             if (bcd_accum == 0x00) {
                 break;
             }
-
-	    // Convert the character to ASCII...
+            
+            // This checks the parity implicitly...
             char c = this->bcd_to_char(bcd_accum);
       
-            if (c == '\0') { // error, invalid character
+            if (c == '\0') { // error, invalid character (bad parity)
                 return -1;
             }
 
             data[chars] = c;
             chars++;
-      
-            bcd_accum = 0;
+     
+            // Reset the bit accumulator...
+            bcd_accum = 0x00;
         }
     }
   
-    // Finish the data string...
+    // Turn the data into a null-terminated string...
     data[chars] = '\0';
   
-    if (data[chars-2] != '?') {  // error, the end char is not in the right place
+    if (data[chars-2] != '?') {  // error, the end sentinel is not in the right place
         return -1;
     }
 
-    // TODO: calculate LRC (which algorithm to use?)
+    // TODO: verify LRC (even parity across columns)
 
     return chars;
 }
@@ -179,7 +183,7 @@ char MagStripe::bcd_to_char(uint8_t bcd)
         case 0x1f: return '?';  // end sentinel
     }
 
-    // Error, invalid character...
+    // Error, invalid character (bad parity)...
     return '\0';
 }
 
@@ -192,7 +196,7 @@ static void handle_data()
 
 static void handle_clock()
 {
-    // Avoid a crash in case there are too many bits...
+    // Avoid a crash in case there are too many bits (garbage)...
     if (num_bits >= BIT_BUFFER_LEN) {
         return;
     }

@@ -33,7 +33,7 @@
 #include "WProgram.h"
 
 
-// Currently the only supported card format...
+// Currently the only supported card format is BCD (track 2)..
 #define MAGSTRIPE_FMT_BCD 1
 
 // The pins used by this library...
