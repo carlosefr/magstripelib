@@ -74,7 +74,8 @@ size_t MagStripe::read(char *data, size_t size)
  
     // Wait while the data is read by the interrupt routines...
     while (this->available()) {}
- 
+
+    // TODO: support other formats besides BCD...
     size_t chars = this->decode_bits_bcd(data, size);
 
     // Reset the bit buffer...
@@ -129,6 +130,7 @@ size_t MagStripe::decode_bits_bcd(char *data, size_t size) {
                 break;
             }
 
+	    // Convert the character to ASCII...
             char c = this->bcd_to_char(bcd_accum);
       
             if (c == '\0') { // error, invalid character
@@ -149,7 +151,7 @@ size_t MagStripe::decode_bits_bcd(char *data, size_t size) {
         return -1;
     }
 
-    // TODO: calculate LRC (which algorithm?)
+    // TODO: calculate LRC (which algorithm to use?)
 
     return chars;
 }
