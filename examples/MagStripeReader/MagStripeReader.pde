@@ -65,13 +65,13 @@ void loop()
   digitalWrite(READ_LED, HIGH);
   
   // Read the card into the buffer "data"...
-  int chars = card.read(data, DATA_BUFFER_LEN);
+  short chars = card.read(data, DATA_BUFFER_LEN);
   
   // Show that the card has finished reading...
   digitalWrite(READ_LED, LOW);
   
   // If there was an error reading the card, blink the error LED...
-  if (chars <= 0) {
+  if (chars < 0) {
     digitalWrite(ERROR_LED, HIGH);
     delay(250);
     digitalWrite(ERROR_LED, LOW);

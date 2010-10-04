@@ -33,7 +33,7 @@
 #include "WProgram.h"
 
 
-// Currently the only supported card format is BCD (track 2)..
+// Currently the only supported card format is BCD (track 2)...
 #define MAGSTRIPE_FMT_BCD 1
 
 // The pins used by this library...
@@ -44,17 +44,18 @@
 
 class MagStripe {
     public:
-        void begin(uint8_t format=MAGSTRIPE_FMT_BCD);
+        void begin(unsigned char format=MAGSTRIPE_FMT_BCD);
         void stop();
         bool available() { return digitalRead(MAGSTRIPE_CLS) == LOW; };
-        size_t read(char *data, size_t size);
+        short read(char *data, unsigned char size);
 
     private:
-        uint8_t format;
+        unsigned char format;
 
-        size_t find_start_bcd();
-        size_t decode_bits_bcd(char *data, size_t size);
-        char bcd_to_char(uint8_t bcd);
+        void reverse_bits();
+        short find_start_bcd();
+        short decode_bits_bcd(char *data, unsigned char size);
+        char bcd_to_char(unsigned char bcd);
 };
 
 
