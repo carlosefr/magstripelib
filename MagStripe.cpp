@@ -171,15 +171,38 @@ short MagStripe::decode_bits_bcd(char *data, unsigned char size) {
         return -1;
     }
 
-    // TODO: verify LRC (even parity across columns)
+    // Verify the LRC (even parity across columns)...
+    if (!check_lrc(&bits[start], chars*5, 5)) {
+        return -1;
+    }
 
     return chars;
 }
 
 
+bool MagStripe::check_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit)
+{
+    // Count the number of ones per column (ignoring parity bits)...
+    for (short i = 0; i < (parity_bit-1); i++) {
+        short counter = 0;
+
+        for (short j = i; j < size; j += parity_bit) {
+            counter += bits[j];
+        }
+
+        // Even parity is what we want...
+        if (counter % 2 != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
 char MagStripe::bcd_to_char(unsigned char bcd)
 {
-    // This decodes and checks the parity in one go...
+    // This decodes and checks the (odd) parity in one go...
     switch (bcd) {
         case 0x01: return '0';
         case 0x10: return '1';

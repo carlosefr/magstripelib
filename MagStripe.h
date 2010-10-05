@@ -35,6 +35,7 @@
 
 // Currently the only supported card format is BCD (track 2)...
 #define MAGSTRIPE_FMT_BCD 1
+#define MAGSTRIPE_FMT_SIXBIT 2
 
 // The pins used by this library...
 #define MAGSTRIPE_RDT 2  /* data pin (blue) */
@@ -55,6 +56,7 @@ class MagStripe {
         void reverse_bits();
         short find_start_bcd();
         short decode_bits_bcd(char *data, unsigned char size);
+        bool check_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit);
         char bcd_to_char(unsigned char bcd);
 };
 
