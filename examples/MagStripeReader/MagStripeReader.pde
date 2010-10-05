@@ -27,8 +27,8 @@
 
 
 // Visual feedback when the card is being read...
-static byte READ_LED = 13;
-static byte ERROR_LED = 12;
+static const byte READ_LED = 13;
+static const byte ERROR_LED = 12;
 
 MagStripe card;
 
