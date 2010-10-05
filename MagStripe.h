@@ -32,8 +32,20 @@
 
 #include "WProgram.h"
 
+/*
+ * This value is the maximum needed to read any of the three tracks.
+ *
+ * In the future the code may be changed to reduce memory usage by
+ * packing bits, but for now if you have memory constraints, you can
+ * reduce this keeping in mind the maximum needed to read each track:
+ *
+ * Track 1: not supported yet 
+ * Track 2: 320 bytes
+ * Track 3: 768 bytes
+ */
+#define BIT_BUFFER_LEN 768 
 
-// Currently the only supported card format is BCD (track 2)...
+// Currently the only supported card format is BCD (tracks 2 and 3)...
 #define MAGSTRIPE_FMT_BCD 1
 #define MAGSTRIPE_FMT_SIXBIT 2
 

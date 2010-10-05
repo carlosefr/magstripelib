@@ -27,10 +27,6 @@
 #include "MagStripe.h"
 
 
-// This is enough for now (BCD on track 2 only)...
-#define BIT_BUFFER_LEN 320
-
-
 // Variables used by the interrupt handlers...
 static volatile unsigned char next_bit = 0;          // next bit to read
 static volatile unsigned char bits[BIT_BUFFER_LEN];  // buffer for bits being read
@@ -64,7 +60,7 @@ void MagStripe::stop()
 
 short MagStripe::read(char *data, unsigned char size)
 {
-    // Currently only the BCD format (track 2) is supported...
+    // Currently only the BCD format (tracks 2 and 3) is supported...
     if (this->format != MAGSTRIPE_FMT_BCD) {
         return -1;
     }
@@ -77,7 +73,7 @@ short MagStripe::read(char *data, unsigned char size)
     // Wait while the data is being read by the interrupt routines...
     while (this->available()) {}
 
-    // TODO: support other formats besides BCD on track 2...
+    // TODO: support the SIXBIT format (track 1)...
     short chars = this->decode_bits_bcd(data, size);
 
     // If the data looks bad, reverse and try again...

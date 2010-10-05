@@ -1,5 +1,5 @@
 /*
- * MagStripeReader - Read data from a magnetic stripe card (example program).
+ * MagStripeReader - Read data from a magnetic stripe card (track 2 or 3).
  *
  * Copyright (c) 2010 Carlos Rodrigues <cefrodrigues@gmail.com>
  *
@@ -32,8 +32,11 @@ static byte ERROR_LED = 12;
 
 MagStripe card;
 
-// Data read from the card...
-static const byte DATA_BUFFER_LEN = 41;
+/*
+ * Track 2 contains a maximum of 40 characters and track 3 a maximum of 107.
+ * We add one more to accomodate the final '\0', as the data is a C string...
+ */
+static const byte DATA_BUFFER_LEN = 108;
 static char data[DATA_BUFFER_LEN];
 
 
@@ -45,8 +48,8 @@ void setup()
   // The card data will be sent over serial...
   Serial.begin(9600);
   
-  // Initialize the library (attach interrupts)...
-  card.begin();
+  // Initialize the library (attach interrupts) using BCD format...
+  card.begin(MAGSTRIPE_FMT_BCD);
 
   // Start with the feedback LEDs off...
   digitalWrite(READ_LED, LOW);
@@ -64,7 +67,7 @@ void loop()
   // Show that a card is being read...
   digitalWrite(READ_LED, HIGH);
   
-  // Read the card into the buffer "data"...
+  // Read the card into the buffer "data" (as a null-terminated string)...
   short chars = card.read(data, DATA_BUFFER_LEN);
   
   // Show that the card has finished reading...
@@ -79,6 +82,7 @@ void loop()
     return;
   }
 
+  // Send the data to the computer...
   Serial.println(data);
 }
 
