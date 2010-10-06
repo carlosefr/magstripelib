@@ -36,18 +36,10 @@
  * This value is the maximum needed to read any of the three tracks.
  *
  * In the future the code may be changed to reduce memory usage by
- * packing bits, but for now if you have memory constraints, you can
- * reduce this keeping in mind the maximum needed to read each track:
- *
- * Track 1: not supported yet 
- * Track 2: 320 bytes
- * Track 3: 768 bytes
+ * packing bits, but for now if you have memory constraints and will
+ * only be reading track 2, you can reduce this safely to 320 bytes.
  */
 #define BIT_BUFFER_LEN 768 
-
-// Currently the only supported card format is BCD (tracks 2 and 3)...
-#define MAGSTRIPE_FMT_BCD 1
-#define MAGSTRIPE_FMT_SIXBIT 2
 
 // The pins used by this library...
 #define MAGSTRIPE_RDT 2  /* data pin (blue) */
@@ -57,19 +49,30 @@
 
 class MagStripe {
     public:
-        void begin(unsigned char format=MAGSTRIPE_FMT_BCD);
+        // Initialize the library (attach interrupts)...
+        void begin(unsigned char track);
+
+        // Deinitialize the library (detach interrupts)...
         void stop();
+
+        // Check if there is a card present for reading...
         bool available() { return digitalRead(MAGSTRIPE_CLS) == LOW; };
+
+        // Read the data from the card as ASCII...
         short read(char *data, unsigned char size);
 
     private:
-        unsigned char format;
+        unsigned char track;
 
         void reverse_bits();
-        short find_start_bcd();
+        bool verify_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit);
+        short find_sentinel_bcd();
+        short find_sentinel_sixbit();
+        short decode_bits(char *data, unsigned char size);
         short decode_bits_bcd(char *data, unsigned char size);
-        bool check_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit);
-        char bcd_to_char(unsigned char bcd);
+        short decode_bits_sixbit(char *data, unsigned char size);
+        char char_from_bcd(unsigned char bcd);
+        char char_from_sixbit(unsigned char sixbit);
 };
 
 

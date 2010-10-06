@@ -1,5 +1,5 @@
 /*
- * MagStripeReader - Read data from a magnetic stripe card (track 2 or 3).
+ * MagStripeReader - Read data from a magnetic stripe card (track 1, 2 or 3).
  *
  * Copyright (c) 2010 Carlos Rodrigues <cefrodrigues@gmail.com>
  *
@@ -33,7 +33,7 @@ static const byte ERROR_LED = 12;
 MagStripe card;
 
 /*
- * Track 2 contains a maximum of 40 characters and track 3 a maximum of 107.
+ * Track 3 is the one that can contain the most characters (107).
  * We add one more to accomodate the final '\0', as the data is a C string...
  */
 static const byte DATA_BUFFER_LEN = 108;
@@ -48,8 +48,8 @@ void setup()
   // The card data will be sent over serial...
   Serial.begin(9600);
   
-  // Initialize the library (attach interrupts) using BCD format...
-  card.begin(MAGSTRIPE_FMT_BCD);
+  // Initialize the library for track 2 (the most common)...
+  card.begin(2);
 
   // Start with the feedback LEDs off...
   digitalWrite(READ_LED, LOW);
