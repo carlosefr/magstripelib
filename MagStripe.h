@@ -39,7 +39,7 @@
  * packing bits, but for now if you have memory constraints and will
  * only be reading track 2, you can reduce this safely to 320 bytes.
  */
-#define BIT_BUFFER_LEN 768 
+#define BIT_BUFFER_LEN 800 
 
 // The pins used by this library...
 #define MAGSTRIPE_RDT 2  /* data pin (blue) */
@@ -65,14 +65,10 @@ class MagStripe {
         unsigned char track;
 
         void reverse_bits();
-        bool verify_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit);
-        short find_sentinel_bcd();
-        short find_sentinel_sixbit();
+        bool verify_parity(unsigned char c);
+        bool verify_lrc(volatile unsigned char *bits, short size);
+        short find_sentinel(unsigned char pattern);
         short decode_bits(char *data, unsigned char size);
-        short decode_bits_bcd(char *data, unsigned char size);
-        short decode_bits_sixbit(char *data, unsigned char size);
-        char char_from_bcd(unsigned char bcd);
-        char char_from_sixbit(unsigned char sixbit);
 };
 
 

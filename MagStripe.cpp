@@ -96,10 +96,25 @@ void MagStripe::reverse_bits()
 }
 
 
-bool MagStripe::verify_lrc(volatile unsigned char *bits, short size, unsigned char parity_bit)
+bool MagStripe::verify_parity(unsigned char c)
 {
+    unsigned char parity = 0;
+
+    for (unsigned char i = 0; i < 8; i++) {
+        parity += (c >> i) & 1;
+    }
+
+    // The parity must be odd...
+    return parity % 2 != 0;
+}
+
+
+bool MagStripe::verify_lrc(volatile unsigned char *bits, short size)
+{
+    unsigned char parity_bit = (this->track == 1 ? 7 : 5);
+
     // Count the number of ones per column (ignoring parity bits)...
-    for (short i = 0; i < (parity_bit-1); i++) {
+    for (short i = 0; i < (parity_bit - 1); i++) {
         short parity = 0;
 
         for (short j = i; j < size; j += parity_bit) {
@@ -116,224 +131,83 @@ bool MagStripe::verify_lrc(volatile unsigned char *bits, short size, unsigned ch
 }
 
 
-short MagStripe::find_sentinel_bcd()
+short MagStripe::find_sentinel(unsigned char pattern)
 {
-    unsigned char bit_accum = 0x00;
-  
+    unsigned char bit_accum = 0;
+    unsigned char bit_length = (this->track == 1 ? 7 : 5);
+
     for (short i = 0; i < num_bits; i++) {
-        bit_accum = (bit_accum << 1) & 0x1f;  // rotate the 5 bits to the left...
-        bit_accum |= bits[i];                 // ...and add the current bit
+        bit_accum >>= 1;                           // rotate the bits to the right...
+        bit_accum |= bits[i] << (bit_length - 1);  // ...and add the current bit
     
-        // Stop when the start sentinel (';') is found...
-        if (bit_accum == 0x1a) {
-            return i - 4;
+        // Stop when the start sentinel pattern is found...
+        if (bit_accum == pattern) {
+            return i - (bit_length - 1);
         }
     }
 
-    // Error, no start sentinel was found...
+    // No start sentinel was found...
     return -1;
 }
 
 
-short MagStripe::find_sentinel_sixbit()
-{
-    unsigned char bit_accum = 0x00;
-  
-    for (short i = 0; i < num_bits; i++) {
-        bit_accum = (bit_accum << 1) & 0x7f;  // rotate the 7 bits to the left...
-        bit_accum |= bits[i];                 // ...and add the current bit
-    
-        // Stop when the start sentinel ('%') is found...
-        if (bit_accum == 0x51) {
-            return i - 6;
-        }
-    }
-
-    // Error, no start sentinel was found...
-    return -1;
-}
-
-
-short MagStripe::decode_bits(char *data, unsigned char size)
-{
-    switch (this->track) {
-        case 1:  // track 1 uses the SIXBIT format (79 alphanumeric characters)...
-            return this->decode_bits_sixbit(data, size);
-
-        case 2:  // track 2 uses the BCD format (40 numeric characters)...
-        case 3:  // track 3 uses the BCD format (107 numeric characters)...
-            return this->decode_bits_bcd(data, size);
-    }
-
-    return -1;
-}
-
-
-short MagStripe::decode_bits_bcd(char *data, unsigned char size) {
-    short counter = 0;
+short MagStripe::decode_bits(char *data, unsigned char size) {
+    short bit_count = 0;
     unsigned char chars = 0;
-    unsigned char bit_accum = 0x00;
-  
-    short start = this->find_sentinel_bcd();
-    if (start < 0) {  // error, start sentinel not found
+    unsigned char bit_accum = 0;
+    unsigned char bit_length = (this->track == 1 ? 7 : 5);
+    
+    short bit_start = this->find_sentinel(this->track == 1 ? 0x45 : 0x0b);
+    if (bit_start < 0) {  // error, start sentinel not found
         return -1;
     }
- 
-    for (short i = start; i < num_bits; i++) {
-        bit_accum = (bit_accum << 1) & 0x1f;  // rotate the 5 bits to the left...
-        bit_accum |= bits[i];                 // ...and add the current bit
+
+    for (short i = bit_start; i < num_bits; i++) {
+        bit_accum >>= 1;                             // rotate the bits to the right...
+        bit_accum |= (bits[i] << (bit_length - 1));  // ...and add the current bit
     
-        counter++;
+        bit_count++;
     
-        if (counter % 5 == 0) {
-            if (chars >= size) {
+        if (bit_count % bit_length == 0) {
+            if (chars >= size) {  // error, the buffer is too small
                 return -1;
             }
 
             // A null means we reached the end of the data...
-            if (bit_accum == 0x00) {
+            if (bit_accum == 0) {
                 break;
             }
-            
-            // This checks the parity implicitly...
-            char c = this->char_from_bcd(bit_accum);
-      
-            if (c == '\0') { // error, invalid character (bad parity)
+           
+            // The parity must be odd... 
+            if (!verify_parity(bit_accum)) {
                 return -1;
             }
 
-            data[chars] = c;
+            // Remove the parity bit...
+            bit_accum &= ~(1 << (bit_length - 1));
+
+            // Convert the character to ASCII...
+            data[chars] = bit_accum + (this->track == 1 ? 0x20 : 0x30);
             chars++;
      
             // Reset...
-            bit_accum = 0x00;
+            bit_accum = 0;
         }
     }
   
     // Turn the data into a null-terminated string...
     data[chars] = '\0';
   
-    if (data[chars-2] != '?') {  // error, the end sentinel is not in the right place
+    if (data[chars - 2] != '?') {  // error, the end sentinel is not in the right place
         return -1;
     }
 
     // Verify the LRC (even parity across columns)...
-    if (!verify_lrc(&bits[start], chars*5, 5)) {
+    if (!verify_lrc(&bits[bit_start], chars * bit_length)) {
         return -1;
     }
 
     return chars;
-}
-
-
-short MagStripe::decode_bits_sixbit(char *data, unsigned char size)
-{
-    short counter = 0;
-    unsigned char chars = 0;
-    unsigned char bit_accum = 0x00;
-  
-    short start = this->find_sentinel_sixbit();
-    if (start < 0) {  // error, start sentinel not found
-        return -1;
-    }
- 
-    for (short i = start; i < num_bits; i++) {
-        bit_accum = (bit_accum << 1) & 0x7f;  // rotate the 7 bits to the left...
-        bit_accum |= bits[i];                 // ...and add the current bit
-    
-        counter++;
-    
-        if (counter % 7 == 0) {
-            if (chars >= size) {
-                return -1;
-            }
-
-            // A null means we reached the end of the data...
-            if (bit_accum == 0x00) {
-                break;
-            }
-            
-            // This checks the parity implicitly...
-            char c = this->char_from_sixbit(bit_accum);
-      
-            if (c == '\0') { // error, invalid character (bad parity)
-                return -1;
-            }
-
-            data[chars] = c;
-            chars++;
-     
-            // Reset...
-            bit_accum = 0x00;
-        }
-    }
-  
-    // Turn the data into a null-terminated string...
-    data[chars] = '\0';
-  
-    if (data[chars-2] != '?') {  // error, the end sentinel is not in the right place
-        return -1;
-    }
-
-    // Verify the LRC (even parity across columns)...
-    if (!verify_lrc(&bits[start], chars*7, 7)) {
-        return -1;
-    }
-
-    return chars;
-}
-
-
-char MagStripe::char_from_bcd(unsigned char bcd)
-{
-    // This decodes and checks the (odd) parity in one go...
-    switch (bcd) {
-        case 0x01: return '0';
-        case 0x10: return '1';
-        case 0x08: return '2';
-        case 0x19: return '3';
-        case 0x04: return '4';
-        case 0x15: return '5';
-        case 0x0d: return '6';
-        case 0x1c: return '7';
-        case 0x02: return '8';
-        case 0x13: return '9';
-        case 0x0b: return ':';  // control
-        case 0x1a: return ';';  // start sentinel
-        case 0x07: return '<';  // control
-        case 0x16: return '=';  // field separator
-        case 0x0e: return '>';  // control
-        case 0x1f: return '?';  // end sentinel
-    }
-
-    // Error, invalid character (bad parity)...
-    return '\0';
-}
-
-
-char MagStripe::char_from_sixbit(unsigned char sixbit)
-{
-    // The parity must be odd...
-    unsigned char parity = 0;
-
-    for (unsigned char i = 0; i < 7; i++) {
-        parity += (sixbit >> i) & 0x01;
-    }
-
-    if (parity % 2 == 0) {
-        // Error, invalid character (bad parity)...
-        return '\0';
-    }
-
-    // Must reverse the bits (and drop the parity)...
-    unsigned char c = 0;
-
-    for (unsigned char i = 1; i < 7; i++) {
-        c = (c << 1) & 0x7f;        // rotate the 7 bits to the left...
-        c |= (sixbit >> i) & 0x01;  // ...and add the next bit
-    }
-
-    return c + 0x20;
 }
 
 
