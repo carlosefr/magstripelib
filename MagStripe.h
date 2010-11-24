@@ -30,7 +30,7 @@
 #define MAGSTRIPE_H
 
 
-#include "WProgram.h"
+#include <WProgram.h>
 
 /*
  * This value is the maximum needed to read any of the three tracks.

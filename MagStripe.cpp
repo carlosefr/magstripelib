@@ -23,8 +23,9 @@
  */
 
 
-#include "WProgram.h"
 #include "MagStripe.h"
+
+#include <WProgram.h>
 
 
 // Variables used by the interrupt handlers...
