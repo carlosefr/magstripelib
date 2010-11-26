@@ -72,7 +72,7 @@ class MagStripe {
 };
 
 
-#endif MAGSTRIPE_H
+#endif  /* MAGSTRIPE_H */
 
 
 /* vim: set expandtab ts=4 sw=4: */
