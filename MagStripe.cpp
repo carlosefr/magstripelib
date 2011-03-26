@@ -28,10 +28,19 @@
 #include <WProgram.h>
 
 
+// Enough bits to read any of the three tracks...
+#define BIT_BUFFER_LEN 800 
+
+
 // Variables used by the interrupt handlers...
-static volatile unsigned char next_bit = 0;          // next bit to read
-static volatile unsigned char bits[BIT_BUFFER_LEN];  // buffer for bits being read
-static volatile short num_bits = 0;                  // number of bits already read
+static volatile bool next_bit = 0;                       // next bit to read
+static volatile unsigned char bits[BIT_BUFFER_LEN / 8];  // buffer for bits being read
+static volatile short num_bits = 0;                      // number of bits already read
+
+
+// Manipulate the bit buffer...
+static void bits_set(short index, bool bit);
+static bool bits_get(short index);
 
 // The interrupt handlers...
 static void handle_data(void);
@@ -56,6 +65,12 @@ void MagStripe::stop()
 {
     detachInterrupt(0);
     detachInterrupt(1);
+}
+
+
+bool MagStripe::available()
+{
+    return digitalRead(MAGSTRIPE_CLS) == LOW;
 }
 
 
@@ -89,10 +104,10 @@ short MagStripe::read(char *data, unsigned char size)
 void MagStripe::reverse_bits()
 {
     for (short i = 0; i < num_bits / 2; i++) {
-        unsigned char b = bits[i];
+        bool b = bits_get(i);
 
-        bits[i] = bits[num_bits - i - 1];
-        bits[num_bits - i - 1] = b;
+        bits_set(i, bits_get(num_bits - i - 1));
+        bits_set(num_bits - i - 1, b);
     }
 }
 
@@ -119,7 +134,7 @@ bool MagStripe::verify_lrc(short start, short length)
         short parity = 0;
 
         for (short j = i; j < length; j += parity_bit) {
-            parity += bits[start + j];
+            parity += bits_get(start + j);
         }
 
         // Even parity is what we want...
@@ -138,8 +153,8 @@ short MagStripe::find_sentinel(unsigned char pattern)
     unsigned char bit_length = (this->track == 1 ? 7 : 5);
 
     for (short i = 0; i < num_bits; i++) {
-        bit_accum >>= 1;                           // rotate the bits to the right...
-        bit_accum |= bits[i] << (bit_length - 1);  // ...and add the current bit
+        bit_accum >>= 1;                               // rotate the bits to the right...
+        bit_accum |= bits_get(i) << (bit_length - 1);  // ...and add the current bit
     
         // Stop when the start sentinel pattern is found...
         if (bit_accum == pattern) {
@@ -164,8 +179,8 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
     }
 
     for (short i = bit_start; i < num_bits; i++) {
-        bit_accum >>= 1;                             // rotate the bits to the right...
-        bit_accum |= (bits[i] << (bit_length - 1));  // ...and add the current bit
+        bit_accum >>= 1;                                 // rotate the bits to the right...
+        bit_accum |= (bits_get(i) << (bit_length - 1));  // ...and add the current bit
     
         bit_count++;
     
@@ -212,9 +227,24 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
 }
 
 
+static void bits_set(short index, bool bit)
+{
+    volatile unsigned char *b = &bits[index / 8];
+    unsigned char m = 1 << (index % 8);
+
+    *b = bit ? (*b | m) : (*b & ~m);
+}
+
+
+static bool bits_get(short index)
+{
+    return bits[index / 8] & (1 << (index % 8));
+}
+
+
 static void handle_data()
 {
-    next_bit = (next_bit == 0) ? 1 : 0;
+    next_bit = !next_bit;
 }
  
 
@@ -225,7 +255,7 @@ static void handle_clock()
         return;
     }
 
-    bits[num_bits] = next_bit;
+    bits_set(num_bits, next_bit);
     num_bits++;
 }
 

@@ -32,14 +32,6 @@
 
 #include <WProgram.h>
 
-/*
- * This value is the maximum needed to read any of the three tracks.
- *
- * In the future the code may be changed to reduce memory usage by
- * packing bits, but for now if you have memory constraints and will
- * only be reading track 2, you can reduce this safely to 320 bytes.
- */
-#define BIT_BUFFER_LEN 800 
 
 // The pins used by this library...
 #define MAGSTRIPE_RDT 2  /* data pin (blue) */
@@ -56,7 +48,7 @@ class MagStripe {
         void stop();
 
         // Check if there is a card present for reading...
-        bool available() { return digitalRead(MAGSTRIPE_CLS) == LOW; };
+        bool available();
 
         // Read the data from the card as ASCII...
         short read(char *data, unsigned char size);
