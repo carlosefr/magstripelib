@@ -47,13 +47,18 @@ static void handle_data(void);
 static void handle_clock(void);
 
 
+MagStripe::MagStripe(unsigned char cls):
+    pin_cls(cls)
+{}
+
+
 void MagStripe::begin(unsigned char track)
 {
     this->track = track;
 
     pinMode(MAGSTRIPE_RDT, INPUT);
     pinMode(MAGSTRIPE_RCL, INPUT);
-    pinMode(MAGSTRIPE_CLS, INPUT);
+    pinMode(this->pin_cls, INPUT);
 
     // Reading is more reliable when using interrupts...
     attachInterrupt(0, handle_data, CHANGE);    // data on digital pin 2
@@ -70,7 +75,7 @@ void MagStripe::stop()
 
 bool MagStripe::available()
 {
-    return digitalRead(MAGSTRIPE_CLS) == LOW;
+    return digitalRead(this->pin_cls) == LOW;
 }
 
 

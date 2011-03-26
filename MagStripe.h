@@ -41,6 +41,9 @@
 
 class MagStripe {
     public:
+        // The CLS pin can be changed from the default...
+        MagStripe(unsigned char cls=MAGSTRIPE_CLS);
+
         // Initialize the library (attach interrupts)...
         void begin(unsigned char track);
 
@@ -54,6 +57,7 @@ class MagStripe {
         short read(char *data, unsigned char size);
 
     private:
+        unsigned char pin_cls;
         unsigned char track;
 
         void reverse_bits();
