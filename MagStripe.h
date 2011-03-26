@@ -66,7 +66,7 @@ class MagStripe {
 
         void reverse_bits();
         bool verify_parity(unsigned char c);
-        bool verify_lrc(volatile unsigned char *bits, short size);
+        bool verify_lrc(short start, short length);
         short find_sentinel(unsigned char pattern);
         short decode_bits(char *data, unsigned char size);
 };

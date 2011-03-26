@@ -110,7 +110,7 @@ bool MagStripe::verify_parity(unsigned char c)
 }
 
 
-bool MagStripe::verify_lrc(volatile unsigned char *bits, short size)
+bool MagStripe::verify_lrc(short start, short length)
 {
     unsigned char parity_bit = (this->track == 1 ? 7 : 5);
 
@@ -118,8 +118,8 @@ bool MagStripe::verify_lrc(volatile unsigned char *bits, short size)
     for (short i = 0; i < (parity_bit - 1); i++) {
         short parity = 0;
 
-        for (short j = i; j < size; j += parity_bit) {
-            parity += bits[j];
+        for (short j = i; j < length; j += parity_bit) {
+            parity += bits[start + j];
         }
 
         // Even parity is what we want...
@@ -204,7 +204,7 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
     }
 
     // Verify the LRC (even parity across columns)...
-    if (!verify_lrc(&bits[bit_start], chars * bit_length)) {
+    if (!verify_lrc(bit_start, chars * bit_length)) {
         return -1;
     }
 
