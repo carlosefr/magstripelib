@@ -30,7 +30,11 @@
 #define MAGSTRIPE_H
 
 
+#if ARDUINO <= 22
 #include <WProgram.h>
+#else
+#include <Arduino.h>
+#endif
 
 
 // The pins used by this library...
