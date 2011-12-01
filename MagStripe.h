@@ -30,7 +30,7 @@
 #define MAGSTRIPE_H
 
 
-#if ARDUINO <= 22
+#if ARDUINO < 100
 #include <WProgram.h>
 #else
 #include <Arduino.h>

@@ -87,4 +87,4 @@ void loop()
 }
 
 
-/* EOF - MagStripeReader.pde */
+/* EOF - MagStripeReader.ino */
