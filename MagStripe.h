@@ -51,6 +51,10 @@
 #define MAGSTRIPE_CLS 4  /* card present pin (yellow) */
 
 
+// Cards can be read in one of these possible ways...
+enum ReadDirection { READ_UNKNOWN, READ_FORWARD, READ_BACKWARD };
+
+
 class MagStripe {
     public:
         // The CLS pin can be changed from the default...
@@ -68,9 +72,13 @@ class MagStripe {
         // Read the data from the card as ASCII...
         short read(char *data, unsigned char size);
 
+        // The direction of the last read...
+        ReadDirection read_direction();
+
     private:
         unsigned char pin_cls;
         unsigned char track;
+        enum ReadDirection direction;
 
         void reverse_bits();
         bool verify_parity(unsigned char c);

@@ -52,7 +52,8 @@ static void handle_clock(void);
 
 
 MagStripe::MagStripe(unsigned char cls):
-    pin_cls(cls)
+    pin_cls(cls),
+    direction(READ_UNKNOWN)
 {}
 
 
@@ -99,14 +100,27 @@ short MagStripe::read(char *data, unsigned char size)
 
     // Decode the raw bits...
     short chars = this->decode_bits(data, size);
+    this->direction = READ_FORWARD;
 
     // If the data looks bad, reverse and try again...
     if (chars < 0) {
         this->reverse_bits();
         chars = this->decode_bits(data, size);
+        this->direction = READ_BACKWARD;
+    }
+
+    // The card could not be read successfully...
+    if (chars < 0) {
+        this->direction = READ_UNKNOWN;
     }
 
     return chars;
+}
+
+
+enum ReadDirection MagStripe::read_direction()
+{
+    return this->direction;
 }
 
 
