@@ -31,15 +31,23 @@
 
 
 #if ARDUINO < 100
-#include <WProgram.h>
+#  include <WProgram.h>
 #else
-#include <Arduino.h>
+#  include <Arduino.h>
 #endif
 
 
-// The pins used by this library...
-#define MAGSTRIPE_RDT 2  /* data pin (blue) */
-#define MAGSTRIPE_RCL 3  /* clock pin (green) */
+// The data and clock pins depend on the board model...
+#if defined(__AVR_ATmega32U4__)
+   // Arduino Leonardo and Arduino Micro:
+#  define MAGSTRIPE_RDT 3  /* data pin (blue) */
+#  define MAGSTRIPE_RCL 2  /* clock pin (green) */
+#else
+   // Arduino Uno and Arduino Mega:
+#  define MAGSTRIPE_RDT 2  /* data pin (blue) */
+#  define MAGSTRIPE_RCL 3  /* clock pin (green) */
+#endif
+
 #define MAGSTRIPE_CLS 4  /* card present pin (yellow) */
 
 

@@ -26,9 +26,9 @@
 #include "MagStripe.h"
 
 #if ARDUINO < 100
-#include <WProgram.h>
+#  include <WProgram.h>
 #else
-#include <Arduino.h>
+#  include <Arduino.h>
 #endif
 
 
@@ -65,8 +65,8 @@ void MagStripe::begin(unsigned char track)
     pinMode(this->pin_cls, INPUT);
 
     // Reading is more reliable when using interrupts...
-    attachInterrupt(0, handle_data, CHANGE);    // data on digital pin 2
-    attachInterrupt(1, handle_clock, FALLING);  // clock on digital pin 3
+    attachInterrupt(0, handle_data, CHANGE);    // data pin
+    attachInterrupt(1, handle_clock, FALLING);  // clock pin
 }
 
 
