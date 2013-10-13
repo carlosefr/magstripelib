@@ -72,8 +72,8 @@ class MagStripe {
         // Read the data from the card as ASCII...
         short read(char *data, unsigned char size);
 
-        // The direction of the last read...
-        ReadDirection read_direction();
+        // The direction of the last card read...
+        enum ReadDirection read_direction();
 
     private:
         unsigned char pin_cls;
