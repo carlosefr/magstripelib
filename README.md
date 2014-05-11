@@ -1,7 +1,7 @@
 What is it?
 ===========
 
-**Mag Stripe** is an [Arduino](http://arduino.cc/) library to interface with TTL (raw) magnetic card readers.
+**MagStripe** is an [Arduino](http://arduino.cc/) library to interface with TTL (raw) magnetic card readers.
 It supports reading any of the cards' possible three tracks, but not simultaneously. Most cards only contain
 data on tracks 1 and 2 though.
 
@@ -14,11 +14,11 @@ There are many brands of TTL magnetic card readers on the market, some with a fi
 with screws allowing the head to be manually positioned to choose one of the tracks. The connector comes with
 varying colors for each wire, but usually there are five wires with the following order and function:
 
-  * Gnd (black wire)
+  * Ground (black wire)
   * RDT/data
   * RCL/clock
-  * CLS/card present</font>
-  * +5V/Vcc (red wire)
+  * CLS/card present
+  * Power/+5V (red wire)
 
 For more information, you can check the
 [KDE KDR-1000 datasheet](http://www.carlos-rodrigues.com/projects/magstripelib/KDR1000.pdf) (pictured above),
@@ -35,7 +35,7 @@ After restarting the Arduino IDE, it should appear in the libraries and examples
 How it Works
 ============
 
-Connect your card reader to the following digital pins of the Arduino Uno (or other arduinos based on the
+Connect your card reader to the following digital pins of the **Arduino Uno** (or other arduinos based on the
 ATmega8/168/328 processors):
 
 Arduino Pin   | Card Reader Pin
@@ -44,7 +44,7 @@ Digital Pin 2 | RDT/data
 Digital Pin 3 | RCL/clock
 Digital Pin 4 | CLS/card present
 
-The Arduino Leonardo or Arduino Micro (or other arduinos based on the ATmega32U4 processor) have a diferent
+The **Arduino Leonardo** or **Arduino Micro** (or other arduinos based on the ATmega32U4 processor) have a diferent
 interrupt pin assignment so, if you have one of these, connect the wires like this instead (swapped clock/data wires):
 
 Arduino Pin   | Card Reader Pin
@@ -64,6 +64,6 @@ The `read()` method does the necessary validation checks and only returns data i
 from the card. The data returned is a string with the (ASCII) full contents of the track, including the control
 characters.
 
-To know about the format of data returned for each track, check the [magnetic card standards](docs/layoutstd.pdf)
+To know about the format of data returned for each track, check the
+[magnetic card standards](https://github.com/carlosefr/magstripelib/blob/master/docs/layoutstd.pdf?raw=true)
 reference.
-.
