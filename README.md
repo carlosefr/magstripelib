@@ -5,7 +5,7 @@ What is it?
 It supports reading any of the cards' possible three tracks, but not simultaneously. Most cards only contain
 data on tracks 1 and 2 though.
 
-![MagStripe-KDE.jpg](http://www.carlos-rodrigues.com/projects/magstripelib/MagStripe-KDE.jpg)
+![MagStripe-KDE.jpg](http://cloud.carlos-rodrigues.com/projects/magstripelib/MagStripe-KDE.jpg)
 
 Card Readers
 ============
@@ -21,9 +21,9 @@ varying colors for each wire, but usually there are five wires with the followin
   * Power/+5V (red wire)
 
 For more information, you can check the
-[KDE KDR-1000 datasheet](http://www.carlos-rodrigues.com/projects/magstripelib/KDR1000.pdf) (pictured above),
+[KDE KDR-1000 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/KDR1000.pdf) (pictured above),
 which can read all three tracks by repositioning the head, or the
-[Panasonic ZU-M1121 datasheet](http://www.carlos-rodrigues.com/projects/magstripelib/ZU-M1121S1.pdf) for an
+[Panasonic ZU-M1121 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/ZU-M1121S1.pdf) for an
 example of another reader which can only read track 2 and has a different pin arrangement. 
 
 Installation
