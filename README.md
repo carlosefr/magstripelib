@@ -24,13 +24,14 @@ For more information, you can check the
 [KDE KDR-1000 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/KDR1000.pdf) (pictured above),
 which can read all three tracks by repositioning the head, or the
 [Panasonic ZU-M1121 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/ZU-M1121S1.pdf) for an
-example of another reader which can only read track 2 and has a different pin arrangement. 
+example of another reader which can only read track 2 and has a different pin arrangement.
 
 Installation
 ============
 
-Uncompress the ".zip" file into your `_<arduino sketch folder>_/libraries` folder (you may need to create it first).
-After restarting the Arduino IDE, it should appear in the libraries and examples menus.
+Download the latest "MagStripe-arduino-_version_.zip" file from the [releases](https://github.com/carlosefr/magstripelib/releases) section. Then open it from the `Sketch > Include Library > Add .ZIP Library...` menu inside the Arduino IDE and a new "MagStripe" entry should appear in the `Sketch > Include Library` and `File > Examples` menus.
+
+![Arduino IDE](http://cloud.carlos-rodrigues.com/projects/magstripelib/screenshot-01.png)
 
 How it Works
 ============
