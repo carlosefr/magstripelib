@@ -29,7 +29,7 @@ example of another reader which can only read track 2 and has a different pin ar
 Installation
 ============
 
-Download the latest "MagStripe-arduino-_version_.zip" file from the [releases](https://github.com/carlosefr/magstripelib/releases) section. Then open it from the `Sketch > Include Library > Add .ZIP Library...` menu inside the Arduino IDE and a new "MagStripe" entry should appear in the `Sketch > Include Library` and `File > Examples` menus.
+Download the latest zip file from the [releases](https://github.com/carlosefr/magstripelib/releases) section. Then open it from the `Sketch > Include Library > Add .ZIP Library...` menu inside the Arduino IDE and a new "MagStripe" entry should appear in the `Sketch > Include Library` and `File > Examples` menus.
 
 ![Arduino IDE](http://cloud.carlos-rodrigues.com/projects/magstripelib/screenshot-01.png)
 
@@ -66,5 +66,5 @@ from the card. The data returned is a string with the (ASCII) full contents of t
 characters.
 
 To know about the format of data returned for each track, check the
-[magnetic card standards](https://github.com/carlosefr/magstripelib/blob/master/docs/layoutstd.pdf?raw=true)
+[magnetic card standards](https://github.com/carlosefr/magstripelib/blob/docs/docs/layoutstd.pdf?raw=true)
 reference.
