@@ -26,6 +26,8 @@ which can read all three tracks by repositioning the head, or the
 [Panasonic ZU-M1121 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/ZU-M1121S1.pdf) for an
 example of another reader which can only read track 2 and has a different pin arrangement.
 
+**Note:** This library is designed for **swipe-type** readers (like the one pictured above) meaning it requires the CLS pin to be active _low_ while the card is being swiped and _high_ otherwise. **Insert-type** readers usually have the CLS pin connected to a switch instead (active _high_ when the card is fully inserted and _low_ otherwise). This behavior is not supported by this library. Check your reader's datasheet if you're not sure how your reader behaves.
+
 Installation
 ============
 
