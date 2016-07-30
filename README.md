@@ -5,7 +5,7 @@ What is it?
 It supports reading any of the cards' possible three tracks, but not simultaneously. Most cards only contain
 data on tracks 1 and 2 though.
 
-![MagStripe-KDE.jpg](http://cloud.carlos-rodrigues.com/projects/magstripelib/MagStripe-KDE.jpg)
+![MagStripe-KDE.jpg](https://raw.githubusercontent.com/carlosefr/magstripelib/master/MagStripe-KDE.jpg)
 
 Card Readers
 ============
@@ -21,9 +21,9 @@ varying colors for each wire, but usually there are five wires with the followin
   * Power/+5V (red wire)
 
 For more information, you can check the
-[KDE KDR-1000 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/KDR1000.pdf) (pictured above),
+[KDE KDR-1000 datasheet](https://github.com/carlosefr/magstripelib/blob/docs/docs/KDR1000.pdf) (pictured above),
 which can read all three tracks by repositioning the head, or the
-[Panasonic ZU-M1121 datasheet](http://cloud.carlos-rodrigues.com/projects/magstripelib/ZU-M1121S1.pdf) for an
+[Panasonic ZU-M1121 datasheet](https://github.com/carlosefr/magstripelib/blob/docs/docs/ZU-M1121S1.pdf) for an
 example of another reader which can only read track 2 and has a different pin arrangement.
 
 **Note:** This library is designed for **swipe-type** readers (like the one pictured above) meaning it requires the CLS pin to be active _low_ while the card is being swiped and _high_ otherwise. **Insert-type** readers usually have the CLS pin connected to a switch instead (active _high_ when the card is fully inserted and _low_ otherwise). This behavior is not supported by this library. Check your reader's datasheet if you're not sure how your reader behaves.
@@ -33,7 +33,7 @@ Installation
 
 Download the latest zip file from the [releases](https://github.com/carlosefr/magstripelib/releases) section. Then open it from the `Sketch > Include Library > Add .ZIP Library...` menu inside the Arduino IDE and a new "MagStripe" entry should appear in the `Sketch > Include Library` and `File > Examples` menus.
 
-![Arduino IDE](http://cloud.carlos-rodrigues.com/projects/magstripelib/screenshot-01.png)
+![Arduino IDE](https://raw.githubusercontent.com/carlosefr/magstripelib/master/screenshot-01.png)
 
 How it Works
 ============
@@ -68,5 +68,5 @@ from the card. The data returned is a string with the (ASCII) full contents of t
 characters.
 
 To know about the format of data returned for each track, check the
-[magnetic card standards](https://github.com/carlosefr/magstripelib/blob/docs/docs/layoutstd.pdf?raw=true)
+[magnetic card standards](https://github.com/carlosefr/magstripelib/blob/docs/docs/layoutstd.pdf)
 reference.
