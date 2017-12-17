@@ -29,7 +29,7 @@
 
 
 // Enough bits to read any of the three tracks...
-#define BIT_BUFFER_LEN 800 
+#define BIT_BUFFER_LEN 800
 
 
 // Variables used by the interrupt handlers...
@@ -174,7 +174,7 @@ short MagStripe::find_sentinel(unsigned char pattern)
     for (short i = 0; i < num_bits; i++) {
         bit_accum >>= 1;                               // rotate the bits to the right...
         bit_accum |= bits_get(i) << (bit_length - 1);  // ...and add the current bit
-    
+
         // Stop when the start sentinel pattern is found...
         if (bit_accum == pattern) {
             return i - (bit_length - 1);
@@ -191,7 +191,7 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
     unsigned char chars = 0;
     unsigned char bit_accum = 0;
     unsigned char bit_length = (this->track == 1 ? 7 : 5);
-    
+
     short bit_start = this->find_sentinel(this->track == 1 ? 0x45 : 0x0b);
     if (bit_start < 0) {  // error, start sentinel not found
         return -1;
@@ -200,9 +200,9 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
     for (short i = bit_start; i < num_bits; i++) {
         bit_accum >>= 1;                                 // rotate the bits to the right...
         bit_accum |= (bits_get(i) << (bit_length - 1));  // ...and add the current bit
-    
+
         bit_count++;
-    
+
         if (bit_count % bit_length == 0) {
             if (chars >= size) {  // error, the buffer is too small
                 return -1;
@@ -212,8 +212,8 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
             if (bit_accum == 0) {
                 break;
             }
-           
-            // The parity must be odd... 
+
+            // The parity must be odd...
             if (!verify_parity(bit_accum)) {
                 return -1;
             }
@@ -224,15 +224,15 @@ short MagStripe::decode_bits(char *data, unsigned char size) {
             // Convert the character to ASCII...
             data[chars] = bit_accum + (this->track == 1 ? 0x20 : 0x30);
             chars++;
-     
+
             // Reset...
             bit_accum = 0;
         }
     }
-  
+
     // Turn the data into a null-terminated string...
     data[chars] = '\0';
-  
+
     if (data[chars - 2] != '?') {  // error, the end sentinel is not in the right place
         return -1;
     }
@@ -265,7 +265,7 @@ static void handle_data()
 {
     next_bit = !next_bit;
 }
- 
+
 
 static void handle_clock()
 {
