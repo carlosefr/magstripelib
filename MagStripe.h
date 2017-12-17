@@ -30,11 +30,7 @@
 #define MAGSTRIPE_H
 
 
-#if ARDUINO < 100
-#  include <WProgram.h>
-#else
-#  include <Arduino.h>
-#endif
+#include <Arduino.h>
 
 
 // The data and clock pins depend on the board model...
