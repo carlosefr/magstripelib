@@ -62,15 +62,15 @@ void MagStripe::begin(unsigned char track)
     pinMode(this->pin_cls, INPUT);
 
     // Reading is more reliable when using interrupts...
-    attachInterrupt(0, handle_data, CHANGE);    // data pin
-    attachInterrupt(1, handle_clock, FALLING);  // clock pin
+    attachInterrupt(digitalPinToInterrupt(MAGSTRIPE_RDT), handle_data, CHANGE);    // data pin
+    attachInterrupt(digitalPinToInterrupt(MAGSTRIPE_RCL), handle_clock, FALLING);  // clock pin
 }
 
 
 void MagStripe::stop()
 {
-    detachInterrupt(0);
-    detachInterrupt(1);
+    detachInterrupt(digitalPinToInterrupt(MAGSTRIPE_RDT));
+    detachInterrupt(digitalPinToInterrupt(MAGSTRIPE_RCL));
 }
 
 
